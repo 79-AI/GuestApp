@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>The Ant Adventures — Guest Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   DESIGN SYSTEM — Light & Clean
+============================================================ */
+:root {
+  --bg:          #F7F4EF;
+  --bg-card:     #FFFFFF;
+  --bg-card-2:   #F2EEE8;
+  --green:       #2A6E48;
+  --green-light: #3D8F60;
+  --green-pale:  #EAF4EE;
+  --green-dim:   rgba(42,110,72,0.10);
+  --gold:        #B8924A;
+  --gold-light:  #D4AC6A;
+  --gold-pale:   #FBF5E8;
+  --gold-border: rgba(184,146,74,0.30);
+  --text:        #1C2E23;
+  --text-soft:   #4A5E52;
+  --text-muted:  #8A9E92;
+  --border:      #E8E2D8;
+  --border-soft: #F0EBE2;
+  --red:         #C94040;
+  --red-pale:    #FDF0F0;
+  --radius:      14px;
+  --radius-sm:   9px;
+  --shadow-sm:   0 2px 8px rgba(0,0,0,0.06);
+  --shadow:      0 4px 20px rgba(0,0,0,0.10);
+  --ease:        cubic-bezier(0.4,0,0.2,1);
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { font-size:16px; }
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+}
+h1,h2,h3,h4 { font-family: 'Playfair Display', serif; }
+button { cursor:pointer; font-family:'Inter',sans-serif; }
+
+::-webkit-scrollbar { width:3px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+
+/* ============================================================
+   APP SHELL
+============================================================ */
+#app { display:flex; flex-direction:column; min-height:100dvh; }
+
+/* App Bar */
+.app-bar {
+  position:sticky; top:0; z-index:100;
+  background:rgba(247,244,239,0.96);
+  border-bottom:1px solid var(--border);
+  padding:12px 18px;
+  display:flex; align-items:center; justify-content:space-between;
+  backdrop-filter:blur(16px);
+}
+
+.brand-wrap { display:flex; align-items:center; gap:10px; }
+
+.brand-badge {
+  width:36px; height:36px; border-radius:10px;
+  background:var(--green);
+  display:flex; align-items:center; justify-content:center;
+  font-size:18px;
+}
+
+.brand-text h1 {
+  font-family:'Inter',sans-serif;
+  font-size:14px; font-weight:700; color:var(--text);
+  letter-spacing:-0.2px;
+}
+.brand-text span {
+  font-size:10px; color:var(--text-muted);
+  letter-spacing:1.2px; text-transform:uppercase;
+}
+
+.guest-chip {
+  display:flex; align-items:center; gap:8px;
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:20px; padding:5px 12px 5px 6px;
+}
+
+.guest-av {
+  width:26px; height:26px; border-radius:50%;
+  background:var(--green);
+  color:#fff; font-size:11px; font-weight:700;
+  display:flex; align-items:center; justify-content:center;
+}
+
+.guest-av-name { font-size:12px; font-weight:600; color:var(--text-soft); }
+
+/* Content */
+.app-content { flex:1; overflow-y:auto; padding-bottom:80px; }
+
+/* Pages */
+.page { display:none; }
+.page.active { display:block; }
+
+/* Bottom Nav */
+.bottom-nav {
+  position:fixed; bottom:0; left:0; right:0; z-index:100;
+  background:rgba(255,255,255,0.97);
+  border-top:1px solid var(--border);
+  display:flex;
+  padding-bottom:env(safe-area-inset-bottom, 6px);
+  backdrop-filter:blur(16px);
+}
+
+.nav-btn {
+  flex:1; background:none; border:none;
+  display:flex; flex-direction:column;
+  align-items:center; gap:3px;
+  padding:10px 4px 6px;
+  color:var(--text-muted);
+  transition:color 0.2s var(--ease);
+  -webkit-tap-highlight-color:transparent;
+}
+
+.nav-btn .ni { font-size:20px; transition:transform 0.2s var(--ease); }
+.nav-btn .nl { font-size:10px; font-weight:500; }
+
+.nav-btn.active { color:var(--green); }
+.nav-btn.active .ni { transform:translateY(-2px); }
+
+/* ============================================================
+   SHARED
+============================================================ */
+.section-lbl {
+  font-size:11px; font-weight:700; color:var(--text-muted);
+  letter-spacing:2px; text-transform:uppercase;
+  margin:24px 0 12px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+
+.section-lbl a {
+  font-size:11px; color:var(--green); text-decoration:none;
+  letter-spacing:0; cursor:pointer;
+}
+
+/* ============================================================
+   HOME / DASHBOARD
+============================================================ */
+#page-home { padding:20px 18px 0; }
+
+.hero-card {
+  background:var(--green);
+  border-radius:18px; padding:22px 20px; margin-bottom:20px;
+  position:relative; overflow:hidden;
+}
+
+.hero-card::after {
+  content:'';
+  position:absolute; top:-40px; right:-40px;
+  width:160px; height:160px; border-radius:50%;
+  background:rgba(255,255,255,0.06); pointer-events:none;
+}
+
+.hero-eyebrow {
+  font-family:'Inter',sans-serif;
+  font-size:11px; font-weight:600; color:rgba(255,255,255,0.65);
+  letter-spacing:2px; text-transform:uppercase; margin-bottom:4px;
+}
+
+.hero-name {
+  font-size:22px; color:#fff; font-weight:700;
+  line-height:1.25; margin-bottom:16px;
+}
+
+.trip-rows { display:flex; flex-direction:column; gap:8px; margin-bottom:16px; }
+
+.trip-row {
+  display:flex; align-items:center; gap:8px;
+  font-size:13px; color:rgba(255,255,255,0.80);
+}
+.trip-row strong { color:#fff; font-weight:500; }
+
+.countdown-bar {
+  background:rgba(255,255,255,0.14);
+  border-radius:10px; padding:12px 16px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+
+.cdown-left { display:flex; align-items:baseline; gap:6px; }
+.cdown-num {
+  font-family:'Playfair Display',serif;
+  font-size:32px; font-weight:700; color:#fff; line-height:1;
+}
+.cdown-txt { font-size:13px; color:rgba(255,255,255,0.7); }
+.cdown-icon { font-size:28px; }
+
+/* Quick grid */
+.quick-grid {
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:10px; margin-bottom:0;
+}
+
+.q-card {
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:var(--radius); padding:16px 14px;
+  cursor:pointer; transition:all 0.18s var(--ease);
+  -webkit-tap-highlight-color:transparent;
+  box-shadow:var(--shadow-sm);
+}
+
+.q-card:active, .q-card:hover {
+  border-color:var(--green);
+  background:var(--green-pale);
+  transform:translateY(-1px);
+  box-shadow:var(--shadow);
+}
+
+.q-icon { font-size:26px; margin-bottom:9px; }
+.q-title { font-family:'Inter',sans-serif; font-size:13px; font-weight:600; color:var(--text); margin-bottom:2px; }
+.q-sub { font-family:'Inter',sans-serif; font-size:11px; color:var(--text-muted); }
+
+/* Highlight day preview */
+.highlight-day {
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  overflow:hidden;
+  box-shadow:var(--shadow-sm);
+  margin-bottom:24px;
+}
+
+/* ============================================================
+   ITINERARY
+============================================================ */
+#page-itinerary { padding:20px 18px; }
+
+.itin-intro { margin-bottom:18px; }
+.itin-intro h2 { font-size:22px; color:var(--text); margin-bottom:2px; }
+.itin-intro p { font-size:13px; color:var(--text-muted); }
+
+.day-card {
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:var(--radius); margin-bottom:8px;
+  overflow:hidden;
+  box-shadow:var(--shadow-sm);
+  transition:border-color 0.2s var(--ease);
+}
+
+.day-card.open { border-color:var(--green); }
+
+.day-head {
+  display:flex; align-items:center; gap:10px;
+  padding:13px 16px; cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+
+.day-badge {
+  background:var(--green);
+  color:#fff; font-family:'Inter',sans-serif;
+  font-size:10px; font-weight:700;
+  letter-spacing:0.8px; text-transform:uppercase;
+  padding:3px 9px; border-radius:20px; white-space:nowrap; flex-shrink:0;
+}
+
+.day-meta { flex:1; min-width:0; }
+.day-date { font-size:11px; color:var(--green); font-weight:500; }
+.day-loc { font-size:15px; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+.day-arrow {
+  color:var(--text-muted); font-size:14px;
+  transition:transform 0.22s var(--ease); flex-shrink:0;
+}
+.day-card.open .day-arrow { transform:rotate(180deg); color:var(--green); }
+
+.day-body { display:none; padding:4px 16px 16px; }
+.day-card.open .day-body { display:block; }
+
+.act-block {
+  border-left:2px solid var(--border);
+  padding-left:12px; margin-bottom:12px;
+}
+
+.act-time {
+  font-size:10px; font-weight:700; color:var(--green);
+  letter-spacing:1.5px; text-transform:uppercase; margin-bottom:3px;
+}
+
+.act-desc { font-size:13px; color:var(--text-soft); line-height:1.65; }
+
+.sig-badge {
+  display:inline-block; margin-top:5px;
+  background:var(--gold-pale);
+  border:1px solid var(--gold-border);
+  color:var(--gold); font-size:11px; padding:2px 9px; border-radius:20px;
+}
+
+.day-tags {
+  display:flex; flex-wrap:wrap; gap:6px;
+  padding-top:10px; margin-top:8px;
+  border-top:1px solid var(--border-soft);
+}
+
+.tag-meal {
+  background:var(--green-pale); border:1px solid rgba(42,110,72,0.18);
+  color:var(--green); font-size:11px; padding:3px 10px; border-radius:20px; font-weight:500;
+}
+
+.tag-hotel {
+  background:var(--gold-pale); border:1px solid var(--gold-border);
+  color:var(--gold); font-size:11px; padding:3px 10px; border-radius:20px; font-weight:500;
+}
+
+/* ============================================================
+   DOCUMENTS
+============================================================ */
+#page-docs { padding:20px 18px; }
+
+.doc-row {
+  background:var(--bg-card); border:1px solid var(--border);
+  border-radius:var(--radius); padding:14px 16px;
+  display:flex; align-items:center; gap:12px;
+  margin-bottom:8px; cursor:pointer;
+  transition:all 0.18s var(--ease);
+  box-shadow:var(--shadow-sm);
+  -webkit-tap-highlight-color:transparent;
+}
+
+.doc-row:active, .doc-row:hover { border-color:var(--green); background:var(--green-pale); }
+
+.doc-ico {
+  width:42px; height:42px; border-radius:11px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:20px; flex-shrink:0;
+}
+
+.doc-ico.g { background:var(--green-pale); }
+.doc-ico.o { background:var(--gold-pale); }
+.doc-ico.b { background:#EEF4FF; }
+
+.doc-info { flex:1; min-width:0; }
+.doc-name { font-size:14px; font-weight:600; color:var(--text); }
+.doc-sub { font-size:12px; color:var(--text-muted); margin-top:2px; }
+
+.doc-chip {
+  font-size:11px; font-weight:600; padding:3px 10px;
+  border-radius:20px; white-space:nowrap; flex-shrink:0;
+}
+
+.doc-chip.ready  { background:var(--green-pale); color:var(--green); }
+.doc-chip.pending { background:var(--gold-pale); color:var(--gold); }
+.doc-chip.action { background:var(--red-pale); color:var(--red); }
+
+.doc-notice {
+  margin-top:14px; padding:14px 16px;
+  background:var(--bg-card); border:1px solid var(--border);
+  border-radius:var(--radius); font-size:13px; color:var(--text-soft); line-height:1.7;
+}
+
+.doc-notice a { color:var(--green); text-decoration:none; }
+
+/* ============================================================
+   PRE-DEPARTURE
+============================================================ */
+#page-prep { padding:20px 18px; }
+
+.prep-card {
+  background:var(--bg-card); border:1px solid var(--border);
+  border-radius:var(--radius); margin-bottom:8px; overflow:hidden;
+  box-shadow:var(--shadow-sm);
+  transition:border-color 0.2s var(--ease);
+}
+
+.prep-card.open { border-color:var(--green); }
+
+.prep-head {
+  display:flex; align-items:center; gap:11px;
+  padding:14px 16px; cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+
+.prep-ico {
+  width:38px; height:38px; border-radius:10px;
+  background:var(--green-pale);
+  display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0;
+}
+
+.prep-title { font-family:'Inter',sans-serif; font-size:14px; font-weight:600; color:var(--text); flex:1; }
+.prep-arrow { color:var(--text-muted); font-size:14px; transition:transform 0.22s var(--ease); }
+.prep-card.open .prep-arrow { transform:rotate(180deg); color:var(--green); }
+
+.prep-body { display:none; padding:0 16px 16px; }
+.prep-card.open .prep-body { display:block; }
+
+.prep-body p, .prep-body li {
+  font-size:13px; color:var(--text-soft); line-height:1.75;
+}
+.prep-body ul { padding-left:18px; }
+.prep-body ul li { margin-bottom:5px; }
+.prep-body strong { color:var(--text); }
+
+.callout {
+  background:var(--green-pale); border:1px solid rgba(42,110,72,0.2);
+  border-radius:var(--radius-sm); padding:11px 13px; margin-top:10px;
+  font-size:13px; color:var(--green); line-height:1.6;
+}
+
+.warn {
+  background:var(--red-pale); border:1px solid rgba(201,64,64,0.18);
+  border-radius:var(--radius-sm); padding:11px 13px; margin-top:8px;
+  font-size:13px; color:var(--red); line-height:1.6;
+}
+
+/* ============================================================
+   EMERGENCY
+============================================================ */
+#page-sos { padding:20px 18px; }
+
+.sos-alert {
+  background:var(--red-pale); border:1px solid rgba(201,64,64,0.2);
+  border-radius:var(--radius); padding:14px 16px;
+  display:flex; align-items:center; gap:12px; margin-bottom:20px;
+}
+
+.sos-big { font-size:28px; }
+.sos-title { font-size:14px; font-weight:600; color:var(--red); }
+.sos-sub { font-size:12px; color:var(--text-muted); margin-top:2px; }
+
+.c-card {
+  background:var(--bg-card); border:1px solid var(--border);
+  border-radius:var(--radius); padding:13px 14px;
+  display:flex; align-items:center; gap:12px; margin-bottom:8px;
+  box-shadow:var(--shadow-sm);
+}
+
+.c-icon {
+  width:42px; height:42px; border-radius:11px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:20px; flex-shrink:0;
+}
+
+.c-icon.g { background:var(--green-pale); }
+.c-icon.o { background:var(--gold-pale); }
+.c-icon.r { background:var(--red-pale); }
+.c-icon.b { background:#EEF4FF; }
+
+.c-info { flex:1; min-width:0; }
+.c-name { font-size:14px; font-weight:600; color:var(--text); }
+.c-role { font-size:12px; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.c-num  { font-size:12px; color:var(--green); font-weight:600; margin-top:2px; }
+
+.call-btn {
+  background:var(--green-pale); border:1px solid rgba(42,110,72,0.22);
+  color:var(--green); border-radius:8px; padding:7px 12px;
+  font-size:12px; font-weight:600; white-space:nowrap; flex-shrink:0;
+  transition:background 0.18s var(--ease);
+}
+
+.call-btn:hover { background:rgba(42,110,72,0.18); }
+
+.embassy-box {
+  background:var(--bg-card); border:1px solid var(--border);
+  border-radius:var(--radius); padding:14px 16px; margin-top:4px;
+  font-size:13px; color:var(--text-soft); line-height:1.9;
+  box-shadow:var(--shadow-sm);
+}
+
+.embassy-box strong { color:var(--text); }
+.embassy-box span { color:var(--green); font-weight:500; }
+
+/* ============================================================
+   PAGE HEADER (shared)
+============================================================ */
+.page-hdr { margin-bottom:18px; }
+.page-hdr h2 { font-size:22px; color:var(--text); margin-bottom:2px; }
+.page-hdr p  { font-size:13px; color:var(--text-muted); }
+
+/* ============================================================
+   FLOATING CHAT
+============================================================ */
+.chat-fab {
+  position:fixed; bottom:90px; right:16px; z-index:200;
+  width:52px; height:52px; border-radius:50%; border:none;
+  background:var(--green); color:#fff; font-size:24px;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 4px 18px rgba(42,110,72,0.38);
+  transition:transform 0.2s var(--ease);
+  -webkit-tap-highlight-color:transparent;
+}
+
+.chat-fab:hover { transform:scale(1.06); }
+
+.chat-win {
+  position:fixed; bottom:154px; right:16px; z-index:200;
+  width:310px; max-height:420px; border-radius:18px;
+  background:#fff; border:1px solid var(--border);
+  box-shadow:var(--shadow);
+  display:none; flex-direction:column; overflow:hidden;
+}
+
+.chat-win.open { display:flex; }
+
+.chat-hd {
+  background:var(--green); padding:13px 15px;
+  display:flex; align-items:center; gap:9px;
+}
+
+.chat-av {
+  width:34px; height:34px; border-radius:50%;
+  background:rgba(255,255,255,0.2);
+  display:flex; align-items:center; justify-content:center; font-size:18px;
+}
+
+.chat-hd-name   { font-size:13px; font-weight:600; color:#fff; }
+.chat-hd-status { font-size:11px; color:rgba(255,255,255,0.65); }
+
+.close-btn {
+  margin-left:auto; width:26px; height:26px; border-radius:50%;
+  background:rgba(255,255,255,0.15); border:none; color:#fff;
+  font-size:12px; display:flex; align-items:center; justify-content:center;
+  transition:background 0.18s;
+}
+
+.close-btn:hover { background:rgba(255,255,255,0.28); }
+
+.chat-msgs {
+  flex:1; overflow-y:auto; padding:13px;
+  display:flex; flex-direction:column; gap:9px;
+}
+
+.msg {
+  max-width:84%; font-size:13px; line-height:1.55;
+  padding:9px 12px; border-radius:14px;
+}
+
+.msg.bot {
+  background:var(--green-pale); color:var(--text-soft);
+  border-bottom-left-radius:3px; align-self:flex-start;
+}
+
+.msg.user {
+  background:var(--green); color:#fff; font-weight:500;
+  border-bottom-right-radius:3px; align-self:flex-end;
+}
+
+.msg.typing { opacity:0.55; font-style:italic; }
+
+.chat-input-wrap {
+  padding:9px 11px; border-top:1px solid var(--border-soft);
+  display:flex; gap:7px;
+}
+
+.chat-input-wrap input {
+  flex:1; background:var(--bg);
+  border:1px solid var(--border); border-radius:20px;
+  padding:8px 13px; color:var(--text); font-size:13px; outline:none;
+  transition:border-color 0.2s;
+}
+
+.chat-input-wrap input:focus { border-color:var(--green); }
+.chat-input-wrap input::placeholder { color:var(--text-muted); }
+
+.send-btn {
+  width:34px; height:34px; flex-shrink:0; border-radius:50%; border:none;
+  background:var(--green); color:#fff; font-size:14px;
+  display:flex; align-items:center; justify-content:center;
+  transition:transform 0.18s var(--ease);
+}
+
+.send-btn:hover { transform:scale(1.08); }
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+@media (min-width:600px) {
+  #page-home, #page-itinerary, #page-docs, #page-prep, #page-sos {
+    max-width:560px; margin:0 auto;
+  }
+  .chat-win { width:340px; }
+}
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ── APP BAR ──────────────────────────────────── -->
+  <header class="app-bar">
+    <div class="brand-wrap">
+      <div class="brand-badge">🐜</div>
+      <div class="brand-text">
+        <h1>The Ant Adventures</h1>
+        <span>Guest Portal</span>
+      </div>
+    </div>
+    <div class="guest-chip">
+      <div class="guest-av">JW</div>
+      <span class="guest-av-name">James W.</span>
+    </div>
+  </header>
+
+  <!-- ── CONTENT ──────────────────────────────────── -->
+  <main class="app-content">
+
+    <!-- ===== HOME ===================================== -->
+    <div class="page active" id="page-home">
+      <div style="padding:20px 18px 0">
+
+        <!-- Hero -->
+        <div class="hero-card">
+          <p class="hero-eyebrow">Welcome back</p>
+          <h2 class="hero-name">James &amp; Sarah Wilson</h2>
+          <div class="trip-rows">
+            <div class="trip-row">🗺 &nbsp;<span><strong>10-Day Essence of North Vietnam</strong></span></div>
+            <div class="trip-row">📅 &nbsp;<span><strong>Oct 12 – Oct 21, 2026</strong> · 10 days</span></div>
+            <div class="trip-row">👥 &nbsp;<span><strong>2 guests</strong> · Private tour</span></div>
+            <div class="trip-row">📍 &nbsp;<span>Starts in <strong>Hanoi</strong></span></div>
+          </div>
+          <div class="countdown-bar">
+            <div class="cdown-left">
+              <span class="cdown-num" id="g-days">141</span>
+              <span class="cdown-txt">days until departure</span>
+            </div>
+            <span class="cdown-icon">✈️</span>
+          </div>
+        </div>
+
+        <!-- Quick access -->
+        <div class="section-lbl">Quick Access</div>
+        <div class="quick-grid">
+          <div class="q-card" onclick="goTo('itinerary')">
+            <div class="q-icon">🗺</div>
+            <div class="q-title">My Itinerary</div>
+            <div class="q-sub">10 days · 4 stops</div>
+          </div>
+          <div class="q-card" onclick="goTo('docs')">
+            <div class="q-icon">📄</div>
+            <div class="q-title">Documents</div>
+            <div class="q-sub">5 files ready</div>
+          </div>
+          <div class="q-card" onclick="goTo('prep')">
+            <div class="q-icon">🎒</div>
+            <div class="q-title">Prepare</div>
+            <div class="q-sub">Packing · Visa · Tips</div>
+          </div>
+          <div class="q-card" onclick="goTo('sos')">
+            <div class="q-icon">🆘</div>
+            <div class="q-title">Emergency</div>
+            <div class="q-sub">Contacts · Hospitals</div>
+          </div>
+        </div>
+
+        <!-- Today's highlight -->
+        <div class="section-lbl" style="margin-top:22px">
+          Trip Highlight
+          <a onclick="goTo('itinerary')">See all →</a>
+        </div>
+
+        <div class="day-card open highlight-day">
+          <div class="day-head" onclick="toggleDay(this)">
+            <span class="day-badge">Day 1</span>
+            <div class="day-meta">
+              <div class="day-date">Sunday, October 12</div>
+              <div class="day-loc">Arrival · Hanoi</div>
+            </div>
+            <span class="day-arrow">▾</span>
+          </div>
+          <div class="day-body">
+            <div class="act-block">
+              <div class="act-time">Afternoon</div>
+              <div class="act-desc">Private airport transfer from Noi Bai International Airport. Check-in at the legendary Sofitel Legend Metropole.</div>
+            </div>
+            <div class="act-block">
+              <div class="act-time">Evening</div>
+              <div class="act-desc">Welcome dinner at a rooftop restaurant with panoramic views over Hoan Kiem Lake — your first taste of the north.</div>
+              <span class="sig-badge">⭐ Signature Experience</span>
+            </div>
+            <div class="day-tags">
+              <span class="tag-meal">🍽 Dinner</span>
+              <span class="tag-hotel">🏨 Sofitel Legend Metropole ★★★★★</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="height:24px"></div>
+      </div>
+    </div><!-- /home -->
+
+    <!-- ===== ITINERARY ================================= -->
+    <div class="page" id="page-itinerary">
+      <div style="padding:20px 18px">
+
+        <div class="itin-intro page-hdr">
+          <h2>Your Itinerary</h2>
+          <p>10-Day Essence of North Vietnam · Oct 12–21, 2026</p>
+        </div>
+
+        <!-- DAY 1 -->
+        <div class="day-card">
+          <div class="day-head" onclick="toggleDay(this)">
+            <span class="day-badge">Day 1</span>
+            <div class="day-meta"><div class="day-date">Sunday, Oct 12</div><div class="day-loc">Arrival · Hanoi</div></div>
+            <span class="day-arrow">▾</span>
+          </div>
+          <div class="day-body">
+            <div class="act-block"><div class="act-time">Afternoon</div><div class="act-desc">Private transfer from Noi Bai Airport. Check-in at Sofitel Legend Metropole.</div></div>
+            <div class="act-block"><div class="act-time">Evening</div><div class="act-desc">Welcome dinner at a rooftop restaurant with panoramic views over Hoan Kiem Lake.</div><span class="sig-badge">⭐ Signature Experience</span></div>
+            <div class="day-tags"><span class="tag-meal">🍽 Dinner</span><span class="tag-hotel">🏨 Sofitel Legend Metropole ★★★★★</span></div>
+          </div>
+        </div>
+
+        <!-- DAY 2 -->
+        <div class="day-card">
+          <div class="day-head" onclick="toggleDay(this)">
+            <span class="day-badge">Day 2</span>
+            <div class="day-meta"><div class="day-date">Monday, Oct 13</div><div class="day-loc">Hanoi — Old Quarter &amp; Temples</div></div>
+            <span class="day-arrow">▾</span>
+          </div>
+          <div class="day-body">
+            <div class="act-block"><div class="act-time">Morning</div><div class="act-desc">Guided walking tour of the 36 Streets Old Quarter. Ngoc Son Temple on Hoan Kiem Lake. Ancient Dong Xuan Market.</div><span class="sig-badge">⭐ UNESCO Heritage Walk</span></div>
+            <div class="act-block"><div class="act-time">Afternoon</div><div class="act-desc">Temple of Literature (Vietnam's first university, 1070 AD). Ho Chi Minh Mausoleum complex. One Pillar Pagoda.</div></div>
+            <div class="act-block"><div class="act-time">Evening</div><div class="act-desc">Traditional Water Puppet Show at Thang Long Theatre, then dinner on a quiet Old Quarter street.</div></div>
+            <div class="day-tags"><span class="tag-meal">🍳 Breakfast</span><span class="tag-meal">🍽 Dinner</span><span class="tag-hotel">🏨 Sofitel Legend Metropole ★★★★★</span></div>
+          </div>
+        </div>
+
+        <!-- DAY 3 -->
+        <div class="day-card">
+          <div class="day-head" onclick="toggleDay(this)">
+            <span class="day-badge">Day 3</span>
+            <div class="day-meta"><div class="day-date">Tuesday, Oct 14</div><div class="day-loc">Hanoi — Market &amp; Cooking Class</div></div>
+            <span class="day-arrow">▾</span>
+          </div>
+          <div class="day-body">
+            <div class="act-block"><div class="act-time">Morning</div><div class="act-desc">Early market visit to Dong Xuan, handpicking fresh ingredients for the cooking class.</div></div>
+            <div class="act-block"><div class="act-time">Afternoon</div><div class="act-desc">Private Vietnamese cooking class at a local family home in the Old Quarter. Master phở, bánh mì, and fresh spring rolls.</div><span class="sig-badge">⭐ Signature Experience</span></div>
+            <div class="day-tags"><span class="tag-meal">🍳 Breakfast</span><span class="tag-meal">🥢 Lunch (made by you!)</span><span class="tag-hotel">🏨 Sofitel Legend Metropole ★★★★★</span></div>
+          </div>
+        </div>
+
+        <!-- DAY 4 -->
+        <div class="day-card">
+          <div class="day-head" onclick="toggleDay(this)">
+            <span class="day-badge">Day 4</span>
+            <div class="day-meta"><div class="day-date">Wednesday, Oct 15</div><div class="day-loc">Ninh Binh — Trang An</div></div>
+            <span class="day-arrow">▾</span>
+          </div>
+          <div class="day-body">
+            <div class="act-block"><div class="act-time">Morning</div><div class="act-desc">Private transfer to Ninh Binh (2.5 hrs). Sampan boat tour through Trang An Landscape Complex — serene caves and karst cliffs.</div><span class="sig-badge">⭐ UNESCO World Heritage</span></div>
+            <div class="act-block"><div class="act-time">Afternoon</div><div class="act-desc">Hike 500 stone steps to Mua Cave summit for breathtaking panoramic views. Optional cycling through the valley.</div></div>
+            <div class="day-tags"><span class="tag-meal">🍳 Breakfast</span><span class="tag-meal">🥢 Lunch</span><span class="tag-hotel">🏨 Emeralda Resort ★★★★★</span></div>
+          </div>
+        </div>
+
+        <!-- DAY 5 -->
+        <div class="day-card">
+          <div class="day-head" onclick="toggleDay(this)">
+            <span class="day-badge">Day 5</span>
+            <div class="day-meta"><div class="day-date">Thursday, Oct 16</div><div class="day-loc">Ha Long Bay — Embark Cruise</div></div>
+            <span class="day-arrow">▾</span>
+          </div>
+          <div class="day-body">
+            <div class="act-block"><div class="act-time">Morning</div><div class="act-desc">Private transfer to Ha Long Bay (3.5 hrs). Embark your luxury junk cruise at Tuan Chau Marina.</div></div>
+            <div class="act-block"><div class="act-time">Afternoon</div><div class="act-desc">Sail through 1,600+ limestone karsts. Explore Sung Sot Cave. Kayak through hidden emerald lagoons.</div><span class="sig-badge">⭐ Signature Experience</span></div>
+            <div class="act-block"><div class="act-time">Evening</div><div class="act-desc">Sunset cocktails on the top deck. Fresh-caught seafood dinner prepared by the onboard chef. Sleep on the bay.</div></div>
+            <div class="day-tags"><span class="tag-meal">🍳 Breakfast</span><span class="tag-meal">🥢 Lunch</span><span class="tag-meal">🍽 Dinner</span><span class="tag-hotel">🛳 Era Cruises — Luxury Junk</span></div>
+          </div>
+        </div>
+
+        <!-- DAY 6 -->
+        <div class="day-card">
+          <div class="day-head" onclick="toggleDay(this)">
+            <span class="day-badge">Day 6</span>
+            <div class="day-meta"><div class="day-date">Friday, Oct 17</div><div class="day-loc">Ha Long Bay — Full Day</div></div>
+            <span class="day-arrow">▾</span>
+          </div>
+          <div class="day-body">
+            <div class="act-block"><div class="act-time">Morning</div><div class="act-desc">Tai chi on deck at sunrise. Kayak to a secluded beach. Visit a floating fishing village still living on the water.</div><span class="sig-badge">⭐ Sunrise on the Bay</span></div>
+            <div class="act-block"><div class="act-time">Afternoon</div><div class="act-desc">Onboard cooking demonstration. Sunbathing and snorkeling. Squid fishing at dusk with the crew.</div></div>
+            <div class="day-tags"><span class="tag-meal">🍳 Breakfast</span><span class="tag-meal">🥢 Lunch</span><span class="tag-meal">🍽 Dinner</span><span class="tag-hotel">🛳 Era Cruises — Luxury Junk</span></div>
+          </div>
+        </div>
+
+        <!-- DAY 7 -->
+        <div class="day-card">
+          <div class="day-head" onclick="toggleDay(this)">
+            <span class="day-badge">Day 7</span>
+            <div class="day-meta"><div class="day-date">Saturday, Oct 18</div><div class="day-loc">Ha Long → Hanoi → Sapa</div></div>
+            <span class="day-arrow">▾</span>
+          </div>
+          <div class="day-body">
+            <div class="act-block"><div class="act-time">Morning</div><div class="act-desc">Disembark after breakfast. Return to Hanoi by private car. Afternoon free for shopping in the Old Quarter.</div></div>
+            <div class="act-block"><div class="act-time">Evening</div><div class="act-desc">Board the Victoria Express overnight sleeper train from Hanoi to Lao Cai.</div><span class="sig-badge">⭐ Victoria Express Train</span></div>
+            <div class="day-tags"><span class="tag-meal">🍳 Breakfast</span><span class="tag-hotel">🚂 Victoria Express Sleeper</span></div>
+          </div>
+        </div>
+
+        <!-- DAY 8 -->
+        <div class="day-card">
+          <div class="day-head" onclick="toggleDay(this)">
+            <span class="day-badge">Day 8</span>
+            <div class="day-meta"><div class="day-date">Sunday, Oct 19</div><div class="day-loc">Sapa — Rice Terrace Trek</div></div>
+            <span class="day-arrow">▾</span>
+          </div>
+          <div class="day-body">
+            <div class="act-block"><div class="act-time">Morning</div><div class="act-desc">Arrive at Lao Cai at dawn. Transfer to Sapa (40 min). Check in at Silk Path Grand Resort with sweeping valley views.</div></div>
+            <div class="act-block"><div class="act-time">Afternoon</div><div class="act-desc">Trek through the golden Muong Hoa Valley during rice harvest season. Visit Black Hmong and Red Dao ethnic villages.</div><span class="sig-badge">⭐ Golden Harvest Trek</span></div>
+            <div class="day-tags"><span class="tag-meal">🥢 Lunch</span><span class="tag-meal">🍽 Dinner</span><span class="tag-hotel">🏨 Silk Path Grand Resort ★★★★★</span></div>
+          </div>
+        </div>
+
+        <!-- DAY 9 -->
+        <div class="day-card">
+          <div class="day-head" onclick="toggleDay(this)">
+            <span class="day-badge">Day 9</span>
+            <div class="day-meta"><div class="day-date">Monday, Oct 20</div><div class="day-loc">Sapa — Fansipan Summit</div></div>
+            <span class="day-arrow">▾</span>
+          </div>
+          <div class="day-body">
+            <div class="act-block"><div class="act-time">Morning</div><div class="act-desc">Cable car to Fansipan — the Roof of Indochina at 3,143m. Cloud-level panoramas across Vietnam, Laos &amp; China.</div><span class="sig-badge">⭐ Fansipan — 3,143m</span></div>
+            <div class="act-block"><div class="act-time">Afternoon</div><div class="act-desc">Vibrant Bac Ha market. Browse Hmong textiles, silver jewellery, and local herbs. Optional horse ride.</div></div>
+            <div class="day-tags"><span class="tag-meal">🍳 Breakfast</span><span class="tag-meal">🥢 Lunch</span><span class="tag-hotel">🏨 Silk Path Grand Resort ★★★★★</span></div>
+          </div>
+        </div>
+
+        <!-- DAY 10 -->
+        <div class="day-card">
+          <div class="day-head" onclick="toggleDay(this)">
+            <span class="day-badge">Day 10</span>
+            <div class="day-meta"><div class="day-date">Tuesday, Oct 21</div><div class="day-loc">Sapa → Hanoi · Departure</div></div>
+            <span class="day-arrow">▾</span>
+          </div>
+          <div class="day-body">
+            <div class="act-block"><div class="act-time">Morning</div><div class="act-desc">Leisure morning at the resort. Optional sunrise walk to Cat Cat Village before check-out.</div></div>
+            <div class="act-block"><div class="act-time">Afternoon</div><div class="act-desc">Private transfer to Hanoi Noi Bai Airport (4.5 hrs). Warm farewell from The Ant Adventures team.</div></div>
+            <div class="day-tags"><span class="tag-meal">🍳 Breakfast</span></div>
+          </div>
+        </div>
+
+        <div style="height:24px"></div>
+      </div>
+    </div><!-- /itinerary -->
+
+    <!-- ===== DOCUMENTS ================================= -->
+    <div class="page" id="page-docs">
+      <div style="padding:20px 18px">
+        <div class="page-hdr">
+          <h2>My Documents</h2>
+          <p>All files for booking ANT-2026-001</p>
+        </div>
+
+        <div class="doc-row">
+          <div class="doc-ico g">✅</div>
+          <div class="doc-info">
+            <div class="doc-name">Booking Confirmation</div>
+            <div class="doc-sub">ANT-2026-001 · Issued May 12, 2026</div>
+          </div>
+          <span class="doc-chip ready">Ready</span>
+        </div>
+
+        <div class="doc-row">
+          <div class="doc-ico o">💰</div>
+          <div class="doc-info">
+            <div class="doc-name">Invoice INV-2026-047</div>
+            <div class="doc-sub">$6,800 total · Balance due Aug 1</div>
+          </div>
+          <span class="doc-chip action">⚠ Action</span>
+        </div>
+
+        <div class="doc-row">
+          <div class="doc-ico g">🗺</div>
+          <div class="doc-info">
+            <div class="doc-name">Tour Program PDF</div>
+            <div class="doc-sub">10-Day Essence of North Vietnam</div>
+          </div>
+          <span class="doc-chip ready">Ready</span>
+        </div>
+
+        <div class="doc-row">
+          <div class="doc-ico b">🛂</div>
+          <div class="doc-info">
+            <div class="doc-name">Vietnam Visa Guidance</div>
+            <div class="doc-sub">E-visa · 90-day · Australian passport</div>
+          </div>
+          <span class="doc-chip ready">Ready</span>
+        </div>
+
+        <div class="doc-row">
+          <div class="doc-ico o">🛡</div>
+          <div class="doc-info">
+            <div class="doc-name">Travel Insurance Reminder</div>
+            <div class="doc-sub">Recommended before departure</div>
+          </div>
+          <span class="doc-chip pending">Reminder</span>
+        </div>
+
+        <div class="doc-notice">
+          📎 <strong>Need a document?</strong> Chat via the button below or email
+          <a href="mailto:taipham@theantadventures.com">taipham@theantadventures.com</a>
+        </div>
+
+        <div style="height:24px"></div>
+      </div>
+    </div><!-- /docs -->
+
+    <!-- ===== PRE-DEPARTURE ============================= -->
+    <div class="page" id="page-prep">
+      <div style="padding:20px 18px">
+        <div class="page-hdr">
+          <h2>Pre-Departure</h2>
+          <p>Everything you need before you fly</p>
+        </div>
+
+        <div class="prep-card">
+          <div class="prep-head" onclick="togglePrep(this)">
+            <div class="prep-ico">🎒</div>
+            <span class="prep-title">What to Pack</span>
+            <span class="prep-arrow">▾</span>
+          </div>
+          <div class="prep-body">
+            <ul>
+              <li><strong>Clothing:</strong> Light layers for Hanoi &amp; Ha Long. Warm fleece for Sapa — evenings drop to 12°C in October.</li>
+              <li><strong>Footwear:</strong> Comfortable walking shoes, water sandals for the cruise, warm socks for trekking.</li>
+              <li><strong>Documents:</strong> Passport (6+ months validity), printed e-visa, insurance card, booking confirmation.</li>
+              <li><strong>Health kit:</strong> Sunscreen SPF50+, DEET insect repellent, antihistamines, motion sickness tablets.</li>
+              <li><strong>Tech:</strong> Universal adapter (Type A/C), power bank, camera with extra memory cards.</li>
+              <li><strong>Money:</strong> USD cash easily exchanged at banks. Budget ~$30–50/day personal spending.</li>
+              <li><strong>Temples:</strong> Pack a scarf to cover shoulders and knees at religious sites.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="prep-card">
+          <div class="prep-head" onclick="togglePrep(this)">
+            <div class="prep-ico">🌤</div>
+            <span class="prep-title">Weather &amp; Climate</span>
+            <span class="prep-arrow">▾</span>
+          </div>
+          <div class="prep-body">
+            <ul>
+              <li><strong>Hanoi &amp; Ninh Binh:</strong> 23–30°C. Occasional light afternoon showers. Mostly clear mornings.</li>
+              <li><strong>Ha Long Bay:</strong> 24–28°C. Excellent visibility. October is widely considered the best month to cruise.</li>
+              <li><strong>Sapa:</strong> 10–20°C. Crisp mountain air with some morning mist. Bring warm layers.</li>
+            </ul>
+            <div class="callout">🌾 <strong>Perfect timing:</strong> October is rice harvest season in Sapa — the valley turns a spectacular golden colour. You are going at the absolute best time of year.</div>
+          </div>
+        </div>
+
+        <div class="prep-card">
+          <div class="prep-head" onclick="togglePrep(this)">
+            <div class="prep-ico">🛂</div>
+            <span class="prep-title">Visa Information</span>
+            <span class="prep-arrow">▾</span>
+          </div>
+          <div class="prep-body">
+            <p><strong>Australian passport holders require a Vietnam E-Visa.</strong></p>
+            <ul style="margin-top:10px">
+              <li><strong>Apply at:</strong> evisa.xuatnhapcanh.gov.vn (official government portal only)</li>
+              <li><strong>Processing time:</strong> 3–5 business days. Apply at least 2 weeks before departure.</li>
+              <li><strong>Duration &amp; cost:</strong> 90 days, single or multiple entry — ~$25 USD.</li>
+              <li><strong>At immigration:</strong> Print your e-visa. Carry your original passport. Have hotel address ready.</li>
+            </ul>
+            <div class="warn">⚠️ <strong>Avoid third-party visa websites.</strong> Only use the official government portal above.</div>
+          </div>
+        </div>
+
+        <div class="prep-card">
+          <div class="prep-head" onclick="togglePrep(this)">
+            <div class="prep-ico">🙏</div>
+            <span class="prep-title">Cultural Tips</span>
+            <span class="prep-arrow">▾</span>
+          </div>
+          <div class="prep-body">
+            <ul>
+              <li><strong>Greetings:</strong> A nod and warm smile is perfect. Two-handed handshake shows respect to elders.</li>
+              <li><strong>Temples:</strong> Remove shoes, cover shoulders and knees, never point feet toward the altar.</li>
+              <li><strong>Tipping:</strong> 100,000–200,000 VND/day for your guide; 50,000 VND for drivers.</li>
+              <li><strong>Photography:</strong> Always ask before photographing people — especially in Sapa villages.</li>
+              <li><strong>Bargaining:</strong> Normal in markets. Be friendly, start at 60–70% of asking price.</li>
+              <li><strong>Table manners:</strong> Wait for the eldest to eat first. Never leave chopsticks upright in rice.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="prep-card">
+          <div class="prep-head" onclick="togglePrep(this)">
+            <div class="prep-ico">❤️</div>
+            <span class="prep-title">Health &amp; Safety</span>
+            <span class="prep-arrow">▾</span>
+          </div>
+          <div class="prep-body">
+            <ul>
+              <li><strong>Water:</strong> Bottled water only. Avoid ice at street stalls.</li>
+              <li><strong>Food:</strong> Street food is safe where it's busy and freshly cooked. Follow the locals.</li>
+              <li><strong>Vaccinations:</strong> Consult your doctor — Hepatitis A, Typhoid, and Tetanus are common. Not medical advice.</li>
+              <li><strong>Insurance:</strong> Strongly recommended with emergency medical evacuation cover. Confirm it covers trekking.</li>
+              <li><strong>Mosquitoes:</strong> Use DEET repellent at dawn and dusk near rivers and rice paddies.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div style="height:24px"></div>
+      </div>
+    </div><!-- /prep -->
+
+    <!-- ===== EMERGENCY ================================= -->
+    <div class="page" id="page-sos">
+      <div style="padding:20px 18px">
+        <div class="page-hdr">
+          <h2>Emergency Contacts</h2>
+          <p>Save these before you travel</p>
+        </div>
+
+        <div class="sos-alert">
+          <span class="sos-big">🆘</span>
+          <div>
+            <div class="sos-title">In an emergency — call your guide first</div>
+            <div class="sos-sub">Then WhatsApp The Ant Adventures team immediately</div>
+          </div>
+        </div>
+
+        <div class="section-lbl" style="margin-top:4px">Your Team</div>
+
+        <div class="c-card">
+          <div class="c-icon g">👤</div>
+          <div class="c-info">
+            <div class="c-name">Nguyen Van Minh</div>
+            <div class="c-role">Your Personal Tour Guide</div>
+            <div class="c-num">+84 91 234 5678</div>
+          </div>
+          <button class="call-btn">📞 Call</button>
+        </div>
+
+        <div class="c-card">
+          <div class="c-icon o">🐜</div>
+          <div class="c-info">
+            <div class="c-name">The Ant Adventures</div>
+            <div class="c-role">Operations · WhatsApp</div>
+            <div class="c-num">taipham@theantadventures.com</div>
+          </div>
+          <button class="call-btn">💬 Chat</button>
+        </div>
+
+        <div class="section-lbl">First Hotel</div>
+
+        <div class="c-card">
+          <div class="c-icon o">🏨</div>
+          <div class="c-info">
+            <div class="c-name">Sofitel Legend Metropole</div>
+            <div class="c-role">15 Ngo Quyen St, Hoan Kiem, Hanoi</div>
+            <div class="c-num">+84 24 3826 6919</div>
+          </div>
+          <button class="call-btn">📞 Call</button>
+        </div>
+
+        <div class="section-lbl">Vietnam Emergency</div>
+
+        <div class="c-card">
+          <div class="c-icon r">🚔</div>
+          <div class="c-info"><div class="c-name">Police</div><div class="c-role">Vietnam National Emergency</div><div class="c-num">113</div></div>
+          <button class="call-btn">📞 113</button>
+        </div>
+
+        <div class="c-card">
+          <div class="c-icon r">🚑</div>
+          <div class="c-info"><div class="c-name">Ambulance</div><div class="c-role">Vietnam National Emergency</div><div class="c-num">115</div></div>
+          <button class="call-btn">📞 115</button>
+        </div>
+
+        <div class="section-lbl">International Hospitals</div>
+
+        <div class="c-card">
+          <div class="c-icon b">🏥</div>
+          <div class="c-info">
+            <div class="c-name">Vinmec International — Hanoi</div>
+            <div class="c-role">458 Minh Khai, Hai Ba Trung</div>
+            <div class="c-num">+84 24 3974 3556</div>
+          </div>
+          <button class="call-btn">📞 Call</button>
+        </div>
+
+        <div class="c-card">
+          <div class="c-icon b">🌐</div>
+          <div class="c-info">
+            <div class="c-name">International SOS — Hanoi</div>
+            <div class="c-role">24/7 Medical Assistance</div>
+            <div class="c-num">+84 24 3934 0555</div>
+          </div>
+          <button class="call-btn">📞 Call</button>
+        </div>
+
+        <div class="section-lbl">Your Embassy</div>
+
+        <div class="embassy-box">
+          🇦🇺 <strong>Australian Embassy — Hanoi</strong><br>
+          8 Dao Tan Street, Ba Dinh District<br>
+          Main: <span>+84 24 3774 0100</span><br>
+          After-hours emergency: <span>+61 2 6261 3305</span>
+        </div>
+
+        <div style="height:24px"></div>
+      </div>
+    </div><!-- /sos -->
+
+  </main>
+
+  <!-- ── BOTTOM NAV ─────────────────────────────────── -->
+  <nav class="bottom-nav">
+    <button class="nav-btn active" id="nb-home"      onclick="goTo('home')">      <span class="ni">🏠</span><span class="nl">Home</span></button>
+    <button class="nav-btn"        id="nb-itinerary" onclick="goTo('itinerary')"> <span class="ni">🗺</span><span class="nl">Itinerary</span></button>
+    <button class="nav-btn"        id="nb-docs"      onclick="goTo('docs')">      <span class="ni">📄</span><span class="nl">Documents</span></button>
+    <button class="nav-btn"        id="nb-prep"      onclick="goTo('prep')">      <span class="ni">🎒</span><span class="nl">Prepare</span></button>
+    <button class="nav-btn"        id="nb-sos"       onclick="goTo('sos')">       <span class="ni">🆘</span><span class="nl">Emergency</span></button>
+  </nav>
+
+</div><!-- /app -->
+
+<!-- ── FLOATING CHAT ──────────────────────────────────── -->
+<button class="chat-fab" onclick="toggleChat()">🤖</button>
+
+<div class="chat-win" id="chat-win">
+  <div class="chat-hd">
+    <div class="chat-av">🐜</div>
+    <div>
+      <div class="chat-hd-name">The Ant Concierge</div>
+      <div class="chat-hd-status">Always here for you</div>
+    </div>
+    <button class="close-btn" onclick="toggleChat()">✕</button>
+  </div>
+  <div class="chat-msgs" id="chat-msgs">
+    <div class="msg bot">Hi James! 👋 I'm your personal concierge. Ask me anything about your trip, Vietnam, what to pack, visa steps, or anything else!</div>
+    <div class="msg bot">💡 <em>You're visiting Sapa in October — peak rice harvest season. The valley turns golden. Perfect timing!</em></div>
+  </div>
+  <div class="chat-input-wrap">
+    <input type="text" id="chat-in" placeholder="Ask about your trip..." onkeydown="if(event.key==='Enter')sendChat()">
+    <button class="send-btn" onclick="sendChat()">➤</button>
+  </div>
+</div>
+
+<!-- ================================================================
+     JAVASCRIPT
+================================================================ -->
+<script>
+/* Days until departure */
+const departure = new Date('2026-10-12');
+const days = Math.max(0, Math.ceil((departure - new Date()) / 86400000));
+document.getElementById('g-days').textContent = days;
+
+/* Navigation */
+function goTo(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  const pg = document.getElementById('page-' + page);
+  const nb = document.getElementById('nb-' + page);
+  if (pg) pg.classList.add('active');
+  if (nb) nb.classList.add('active');
+  document.querySelector('.app-content').scrollTop = 0;
+}
+
+/* Accordions */
+function toggleDay(head)  { head.closest('.day-card').classList.toggle('open'); }
+function togglePrep(head) { head.closest('.prep-card').classList.toggle('open'); }
+
+/* Chat */
+function toggleChat() {
+  const win = document.getElementById('chat-win');
+  win.classList.toggle('open');
+  if (win.classList.contains('open')) setTimeout(() => document.getElementById('chat-in').focus(), 100);
+}
+
+const REPLIES = [
+  { k:['weather','rain','temperature','cold','warm','climate'], t:"October is ideal! Hanoi & Ha Long are warm (24–30°C) with occasional light showers. Sapa is crisp and cool (10–20°C) — bring a warm layer for evenings. 🌿" },
+  { k:['visa','entry','passport','evisa','immigration'],         t:"Australian passport holders need a Vietnam E-Visa from evisa.xuatnhapcanh.gov.vn. Takes 3–5 days, costs ~$25 USD. Apply at least 2 weeks before you fly! ✈️" },
+  { k:['pack','bring','luggage','wear','clothes'],               t:"Key items: light layers for Hanoi, a warm fleece for Sapa, comfortable walking shoes, sunscreen, DEET repellent, and a scarf for temple visits. 🎒" },
+  { k:['food','eat','restaurant','pho','dinner','lunch'],        t:"North Vietnam food is incredible! Try bún chả, phở bò, and bánh mì in Hanoi. The Ha Long cruise chef cooks fresh local seafood. In Sapa, try the Hmong thắng cố stew! 🍜" },
+  { k:['money','cash','usd','dong','atm','pay','currency'],      t:"USD cash is easily exchanged at banks. Cards work at all your hotels. Carry Dong for markets. Budget roughly $30–50/day personal spending on top of included services. 💵" },
+  { k:['sapa','trek','mountain','village','terraces','harvest'], t:"Sapa in October is extraordinary — the valley turns golden with the rice harvest. You'll trek through cascading terraces, visit Hmong villages, and summit Fansipan at 3,143m! 🏔" },
+  { k:['halong','cruise','bay','kayak','cave','boat'],           t:"Ha Long in October is perfect — calm seas, warm water, great visibility. Your Era Cruises junk has private cabins and an onboard chef. Kayaking through limestone arches is unforgettable. 🛳" },
+  { k:['hotel','stay','room','sofitel','silk','emeralda'],       t:"Your hotels: Sofitel Legend Metropole (Hanoi), Emeralda Resort (Ninh Binh), Era Cruises junk (Ha Long Bay), and Silk Path Grand Resort (Sapa). All handpicked for you! 🏨" },
+  { k:['tip','tipping','gratuity'],                              t:"Tipping is appreciated! 200,000 VND/day for your guide, 100,000 VND/day for drivers. Rounding up at restaurants is generous. Your guide will help with this! 💚" },
+  { k:['emergency','lost','sick','hospital','help','sos'],       t:"Call your guide Nguyen Van Minh (+84 91 234 5678) first — he's your on-the-ground first contact. For medical, Vinmec International Hanoi (+84 24 3974 3556) is excellent. Check the Emergency tab! 🆘" },
+];
+
+function sendChat() {
+  const input = document.getElementById('chat-in');
+  const msgs  = document.getElementById('chat-msgs');
+  const text  = input.value.trim();
+  if (!text) return;
+
+  const um = document.createElement('div');
+  um.className = 'msg user'; um.textContent = text;
+  msgs.appendChild(um); input.value = '';
+  msgs.scrollTop = msgs.scrollHeight;
+
+  const tm = document.createElement('div');
+  tm.className = 'msg bot typing'; tm.textContent = '...';
+  msgs.appendChild(tm); msgs.scrollTop = msgs.scrollHeight;
+
+  setTimeout(() => {
+    const lower = text.toLowerCase();
+    let reply = "Great question! For the most specific answer, reach the team at taipham@theantadventures.com or WhatsApp. They reply within 2–4 hours (7am–8pm Vietnam time, GMT+7). 🌿";
+    for (const r of REPLIES) {
+      if (r.k.some(k => lower.includes(k))) { reply = r.t; break; }
+    }
+    tm.classList.remove('typing');
+    tm.textContent = reply;
+    msgs.scrollTop = msgs.scrollHeight;
+  }, 800);
+}
+</script>
+</body>
+</html>
